@@ -74,9 +74,8 @@ contract Company {
 
 ```
 
-本地执行编译和测试后的结果如下：
-
-<img src=./assets/WX20220223-134044.png width=30% />
+测试用例代码在test目录，本地执行编译和测试后的结果如下：
+<img src=./assets/WX20220223-134044.png width=50% />
 
 Fork 主网
 
