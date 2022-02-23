@@ -21,6 +21,8 @@ https://www.oklink.com/zh-cn/oec-test/tx/0x92b2a84b88bfe793490098ae2a351156d7462
 https://www.oklink.com/zh-cn/oec-test/tx/0x2714a406a21d9dee4f564b94defbc86c79c54f20bb79e9b44770f7890e337f20
 
 
+hardhat:
+https://rinkeby.etherscan.io/address/0x6EAE2C1499f7372414AA3AaAEa4dCa6895fe73bF
 
 
 
