@@ -1,6 +1,6 @@
 require("@nomiclabs/hardhat-waffle");
 require("./task/company.js");
-
+require('dotenv/config');
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -26,6 +26,10 @@ module.exports = {
     dev: {
       url: "http://localhost:8545",
       chainId: 31337,
+    },
+    rinkeby: {
+      url: process.env.ETH_NODE_URI_RINKEBY,
+      accounts: [process.env.PRIVATE_KEY]
     }
   },
 };
