@@ -104,7 +104,7 @@ module.exports = {
 
 执行后的交易hash地址如下：https://rinkeby.etherscan.io/address/0x6EAE2C1499f7372414AA3AaAEa4dCa6895fe73bF
 
-随后在task目录创建了自定义的task任务，学到了 `ethers.getContractAt` 参数中如果增加签名的用户则按照签名用户进行操作，如果没有则按照第一个签名的用户进行操作。
+随后在task目录创建了自定义的task任务，学习了 [ether.js中文](https://learnblockchain.cn/docs/ethers.js/api-wallet.html)
 
 
 
