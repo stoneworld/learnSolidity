@@ -1,5 +1,0 @@
-{
-  "devDependencies": {
-    "@nomiclabs/hardhat-etherscan": "^3.0.1"
-  }
-}
