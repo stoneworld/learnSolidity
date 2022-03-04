@@ -46,7 +46,7 @@ function deposit() public payable {
 }
 ```
 
-用户可以提取自己捐赠的 ETH，因此定义了一个 withdraw 函数，可以看出我在这里用到了一个 modifier noReentrant，其实最开始并没有加上这个，但后续发现存在重入的问题，同时需要定义一个外部不可修改的 locked 状态变量。
+用户可以提取自己捐赠的 ETH，因此定义了一个 withdraw 函数，可以看出我在这里用到了一个 modifier noReentrant，其实最开始并没有加上这个，但后续发现存在重入的问题，同时需要定义一个外部不可修改和读取的 locked 状态变量。
 
 ```
 
