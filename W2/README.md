@@ -1,8 +1,8 @@
 ## 目录
-1. [第二周第一节课作业](#jump1)
-2. [第二周第二节课作业](#jump2)
+1. [第一节课作业](#jump1)
+2. [第二节课作业](#jump2)
 
-### <span id="jump1"> 第二周第一节课作业</span>
+### <span id="jump1">第一节课作业</span>
 
 * 编写⼀个Bank合约：
 * 通过 Metamask 向Bank合约转账ETH
@@ -93,6 +93,6 @@ modifier onlyOwner() {
 
 整体合约完成见 [Bank.sol](./contracts/Bank.sol)
 
-### <span id="jump2">第二周第二节课作业</span>
+### <span id="jump2">第二节课作业</span>
 
 // TODO
