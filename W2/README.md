@@ -95,4 +95,69 @@ modifier onlyOwner() {
 
 ### <span id="jump2">第二节课作业</span>
 
-// TODO
+* 编写合约Score，⽤于记录学⽣（地址）分数：
+   * 仅有⽼师（⽤modifier权限控制）可以添加和修改学⽣分数
+   * 分数不可以⼤于 100； 
+* 编写合约 Teacher 作为⽼师，通过 IScore 接⼝调⽤修改学⽣分数。
+
+首先定义一个合约 Score 如下, 这个Score合约更像是一个班级的合约，包含了学生的分数，以及班级的老师，班级的老师在班级创建之初就确定了。
+
+```
+contract Score {
+    mapping(address => uint) public studentScores; // 学生分数
+
+    address public teacher; // ⽼师地址
+
+    constructor(address _teacher) {
+        teacher = _teacher;
+    }
+}
+
+```
+
+其次定义一个修改分数的函数如下，定义了两个 `modifier` 分别限制只能 Teacher address 才能修改，以及修改的分数不能超过100分。
+
+```
+
+function changeUserScore(address _addr, uint _score) public onlyLessThan100(_score) onlyTeacher {
+    studentScores[_addr] = _score;
+}
+
+modifier onlyTeacher {
+    require(msg.sender == teacher);
+    _;
+}
+
+modifier onlyLessThan100(uint score) {
+    require(score <= 100, "Score must be less than or equal to 100");
+    _;
+}
+
+```
+
+因为这里是需要 Teacher 通过 IScore 接口的方式修改分数这里定义了一个接口，以及 Teacher 合约如下：
+
+```
+interface IScore {
+    function changeUserScore(address _addr, uint _score) external;
+}
+
+contract Teacher {
+
+    address public teacher; // ⽼师地址
+
+    constructor() {
+        teacher = msg.sender;
+    }
+
+    modifier onlyTeacher {
+        require(msg.sender == teacher);
+        _;
+    }
+
+    function changeUserScore(address _score, address _userAddr, uint _studentScore) public onlyTeacher {
+        IScore(_score).changeUserScore(_userAddr, _studentScore);
+    }
+}
+```
+
