@@ -165,7 +165,7 @@ contract Teacher {
 
 整体合约完成见 [Score.sol](./contracts/Score.sol)
 
-### <span id="jump1">课程重点总结记录</span>
+### <span id="jump3">课程重点总结记录</span>
 
 #### 预测合约地址
 
