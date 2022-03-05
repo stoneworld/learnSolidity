@@ -1,9 +1,8 @@
-// 第二周第一节课作业已完成
-// TODO 第二周第二节作业
-### 第二周第一节课作业：
+## 目录
+1. [第二周第一节课作业](#jump1)
+2. [第二周第二节课作业](#jump2)
 
-
-W2_1 作业：
+### <span id="jump1"> 第二周第一节课作业</span>
 
 * 编写⼀个Bank合约：
 * 通过 Metamask 向Bank合约转账ETH
@@ -93,3 +92,7 @@ modifier onlyOwner() {
 退款的交易执行hash地址如下：https://rinkeby.etherscan.io/tx/0x1f5db3352c1e69f1c4ec3154f0662c68e153ea3ef6022353020d5ccc59582be1
 
 整体合约完成见 [Bank.sol](./contracts/Bank.sol)
+
+### <span id="jump2">第二周第二节课作业</span>
+
+// TODO
