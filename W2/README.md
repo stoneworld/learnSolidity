@@ -170,7 +170,9 @@ contract Teacher {
 #### 预测合约地址
 
 整体合约代码见：[Factory.sol](./contracts/Factory.sol)
-如果合约本身是存在参数的，那么 getBytecode 也需要将参数进行打包，不然可能存在参数的不用引起的预测地址结果不对的情况。
+
+如果合约本身是存在参数的，那么 getBytecode 也需要将参数进行打包，不然可能存在参数的不一致引起的预测地址结果不对的情况。
+
 ```
 // 1. Get bytecode of contract to be deployed 
 // NOTE: _owner and _foo are arguments of the TestContract's constructor
