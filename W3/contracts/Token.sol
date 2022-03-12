@@ -15,19 +15,36 @@ W3_1作业
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract Token is ERC20 {
-    uint256 public constant maxTokenNumber = 1000000000;
-    mapping(address => bool) public userIsClaim; // 用户是否已经mint过。
-    uint256 public constant perUserMaxClaimNumber = 100000;
+    uint256 public constant maxTokenNumber = 100000000 * 10 ** 18; // 限定最大数量
 
-    constructor() ERC20("Developer", "Dev") {}
+    address public owner;
 
-    function claim(address _to, uint256 _amount) public {
-        require(msg.sender == tx.origin, "Invalid EOA address"); // 不允许合约进行增发，简单的处理方式
-        require(userIsClaim[msg.sender] == false, "You have already claimed"); // 不允许重复增发
-        require(_amount <= perUserMaxClaimNumber, "You can only claim 100000 tokens at a time"); // 单用户不允许增发超过100000个
-        uint256 _totalSupply = totalSupply();
-        require((_amount + _totalSupply) <= maxTokenNumber, "Amount exceeds max token number");
+    mapping(address => bool) public canMintAddresses;
+
+    constructor() ERC20("Developer", "Dev") {
+        owner = msg.sender;
+        canMintAddresses[msg.sender] = true;
+    }
+
+    modifier onlyOwner {
+        require(msg.sender == owner);
+        _;
+    }
+
+    function addCanMintAddress(address _canMintAddress) public onlyOwner { // 增加可以增发的地址
+        if (canMintAddresses[_canMintAddress] == false) {
+            canMintAddresses[_canMintAddress] = true;
+        }
+    }
+
+    modifier hasPermission(address _mintAddress) {
+        require(canMintAddresses[_mintAddress] == true);
+        _;
+    }
+
+    function claimToken(address _to, uint256 _amount) public hasPermission(_msgSender()) returns (bool){ // 仅仅代币发行者可以增发
+        require(totalSupply() + _amount <= maxTokenNumber);
         _mint(_to, _amount);
-        userIsClaim[_to] = true;
+        return true;
     }
 }
