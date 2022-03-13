@@ -165,7 +165,6 @@ async function main() {
       parseTransferEvent(event);
       // 这里处理记录到mysql，表示某人 mint 某个 nft
 
-
    })
 }
 
@@ -194,6 +193,47 @@ main()
     });
 
 ```
+
+电脑安装 mysql:
+
+```
+docker pull mysql/mysql-server:latest
+docker run --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 -d mysql/mysql-server
+docker exec -it mysql bash
+mysql -u root -p123456
+#授权
+
+mysql>CREATE USER 'root'@'%' IDENTIFIED BY 'root';
+
+mysql>GRANT ALL ON *.* TO 'root'@'%';
+
+#刷新权限
+
+mysql> flush privileges;
+
+#修改root用户密码
+
+mysql> ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '123456';
+
+#刷新权限
+
+mysql> flush privileges;
+
+
+CREATE TABLE `tb_devnft_mint_history` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `token_id` int(11) NOT NULL COMMENT 'token_id',
+  `from_address` varchar(100) DEFAULT NULL COMMENT 'address',
+  `to_address` varchar(100) NOT NULL COMMENT 'address',
+  `update_time` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '更新时间',
+  `create_time` datetime NOT NULL DEFAULT current_timestamp() COMMENT '添加时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='';
+
+
+```
+
+
 
 
 
