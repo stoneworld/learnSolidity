@@ -74,19 +74,24 @@ function claimToken(address _to, uint256 _amount) public hasPermission(_msgSende
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+
 
 contract Vault {
+    using SafeERC20 for IERC20;
+
     mapping (address => mapping (address => uint256)) public deposits;
     // 编写deposit ⽅法，实现 ERC20 存⼊ Vault，并记录每个⽤户存款⾦额
     function deposit(address _token, uint256 _amount) public {
         // 存款⾦额记录
-        require(IERC20(_token).transferFrom(msg.sender, address(this), _amount), "deposite failed");
+        require(IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount), "deposite failed");
         deposits[_token][msg.sender] += _amount;
     }
 
     function withdraw(address _token, uint _amount) public {
         // 提取⾦额记录
-        require(IERC20(_token).transfer(msg.sender, _amount), "withdraw failed");
+        require(deposits[_token][msg.sender] >= _amount, "not enough balance");
+        require(IERC20(_token).safeTransfer(msg.sender, _amount), "withdraw failed");
         deposits[_token][msg.sender] -= _amount;
     }
 }
@@ -105,3 +110,20 @@ contract Vault {
 ### <span id="jump2">第二节课作业</span>
 
 TODO
+
+
+### <span id="jump2">代码疑问总结记录</span>
+
+
+type(I).interfaceId:
+返回接口``I`` 的 bytes4 类型的接口 ID，接口 ID 参考： EIP-165 定义的， 接口 ID 被定义为 XOR （异或） 接口内所有的函数的函数选择器（除继承的函数
+
+```
+function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+   return interfaceId == type(IERC165).interfaceId;
+}
+```
+
+
+
+
