@@ -232,8 +232,27 @@ CREATE TABLE `tb_devnft_mint_history` (
 
 
 ```
+将 node 对 mysql 的调用封装到 mysql.js 中，然后在解析事件的时候将数据插入到表中
+
+```
+async function parseTransferEvent(event) {
+
+   const TransferEvent = new ethers.utils.Interface(["event Transfer(address indexed from,address indexed to,uint256 indexed tokenId)"]);
+   let decodedData = TransferEvent.parseLog(event);
+   var addSql = 'INSERT INTO tb_devnft_mint_history(token_id,from_address,to_address) VALUES(?,?,?)';
+   var addSqlParams = [decodedData.args.tokenId.toString(),decodedData.args.from, decodedData.args.to];
+   db.query(addSql, addSqlParams, function (result, fields) {
+      console.log('添加成功');
+   });
+}
 
 
+```
+
+<img src=./assets/WechatIMG270.png width=50% />
+
+
+最后部署到测试环境在 opensea 打开如下：https://testnets.opensea.io/assets/0xfea921f10670e4eeb8ca717d1a44eec2ef43d04e/0
 
 
 
@@ -249,6 +268,8 @@ function supportsInterface(bytes4 interfaceId) public view virtual override retu
    return interfaceId == type(IERC165).interfaceId;
 }
 ```
+
+转 ETH 的时候存在 fallback 可以被用来重入攻击，对于 ERC20 存在重入攻击形式吗？
 
 
 

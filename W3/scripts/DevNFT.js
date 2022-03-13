@@ -23,7 +23,11 @@ async function main() {
     await devNFT.deployed();
 
     console.log("Token deployed to:", devNFT.address);
-    await writeAddr(devNFT.address, "devNFT", network.name)
+
+    await devNFT.MyDevNFTMint();
+
+
+    //await writeAddr(devNFT.address, "devNFT", network.name)
 
 }
 

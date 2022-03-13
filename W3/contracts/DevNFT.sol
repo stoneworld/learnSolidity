@@ -27,7 +27,7 @@ W3_2作业
         require(newTokenId < 8888, "Token ID invalid");
 
         _safeMint(msg.sender, newTokenId);
-        _setTokenURI(newTokenId, "https://prod-metadata.s3.amazonaws.com/tokens/721.json");
+        _setTokenURI(newTokenId, "https://prod-metadata.s3.amazonaws.com/tokens/721.json"); // 这里写死
 
         _tokenIds.increment();
         console.log("An NFT w/ ID %s has been minted to %s", newTokenId, msg.sender);
