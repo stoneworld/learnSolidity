@@ -84,14 +84,14 @@ contract Vault {
     // 编写deposit ⽅法，实现 ERC20 存⼊ Vault，并记录每个⽤户存款⾦额
     function deposit(address _token, uint256 _amount) public {
         // 存款⾦额记录
-        require(IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount), "deposite failed");
+        IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
         deposits[_token][msg.sender] += _amount;
     }
 
     function withdraw(address _token, uint _amount) public {
         // 提取⾦额记录
         require(deposits[_token][msg.sender] >= _amount, "not enough balance");
-        require(IERC20(_token).safeTransfer(msg.sender, _amount), "withdraw failed");
+        IERC20(_token).safeTransfer(msg.sender, _amount);
         deposits[_token][msg.sender] -= _amount;
     }
 }

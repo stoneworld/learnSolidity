@@ -8,7 +8,7 @@ import Vault from "../../../artifacts/contracts/Vault.sol/Vault.json";
 // import bankAbi from '../../../deployments/abi/Bank.json'
 
 const erc20Address = "0xc2Eb7699606Cf48892a77b4aA234caD22946d5D1";
-const vaultAddress = "0x84D4FAA8FFc5aA958bbb09Fc723747fd166C0cf6";
+const vaultAddress = "0xC1c9A612A759faD9234d50Ad5450877a778dc690";
 
 
 export default {
