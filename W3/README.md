@@ -64,6 +64,7 @@ function claimToken(address _to, uint256 _amount) public hasPermission(_msgSende
 ```
 
 在网页上增加 mint 功能按钮如下，点击按钮后 hash 地址如下：https://rinkeby.etherscan.io/tx/0x7850df6435404adee0e74a34fdc4f2f3b88e43543a889ed26ef800bb828ac281
+前端部分使用了 vue.js
 
 <img src=./assets/WechatIMG266.png width=50% />
 
@@ -109,7 +110,92 @@ contract Vault {
 
 ### <span id="jump2">第二节课作业</span>
 
-TODO
+首先完成了 NFT 合约代码如下：
+
+```
+//SPDX-License-Identifier: Unlicense
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "hardhat/console.sol";
+
+
+contract DevNFT is ERC721URIStorage,Ownable {
+
+   using Counters for Counters.Counter;
+   Counters.Counter private _tokenIds; //token总数
+
+   constructor() ERC721 ("DevNFT", "DevNFT") Ownable() {
+      console.log("This is my DEV NFT contract!");
+   }
+
+   function MyDevNFTMint() public {
+      uint newTokenId = _tokenIds.current();
+      require(newTokenId < 8888, "Token ID invalid");
+
+      _safeMint(msg.sender, newTokenId);
+      _setTokenURI(newTokenId, "https://prod-metadata.s3.amazonaws.com/tokens/721.json"); // 这里其实不应该这样写，这里图省事，直接写死了一个 TokenURI
+
+      _tokenIds.increment();
+      console.log("An NFT w/ ID %s has been minted to %s", newTokenId, msg.sender);
+
+   }
+
+}
+
+```
+
+而后在 dev 环境发布合约代码后，书写了一个监听 Transfer 0 地址的事件如下：
+
+```
+async function main() {
+
+   let [owner, second] = await ethers.getSigners();
+   let devNFT = await ethers.getContractAt("DevNFT", NFTAddr.address, owner);
+
+   let filter = devNFT.filters.Transfer(null, owner.address) // 仅仅监听 mint 的 Transfer事件
+
+
+   ethers.provider.on(filter, (event) => {
+
+      console.log(event)
+
+      parseTransferEvent(event);
+      // 这里处理记录到mysql，表示某人 mint 某个 nft
+
+
+   })
+}
+
+```
+
+单独写了一个 mint nft 的 js 方便事件触发。
+
+```
+
+async function main() {
+
+    let [owner, second] = await ethers.getSigners();
+
+    let devNFT = await ethers.getContractAt("DevNFT",
+        NFTAddr.address,
+        owner);
+
+    await devNFT.MyDevNFTMint();
+}
+
+main()
+    .then(() => process.exit(0))
+    .catch(error => {
+        console.error(error);
+        process.exit(1);
+    });
+
+```
+
+
 
 
 ### <span id="jump2">代码疑问总结记录</span>

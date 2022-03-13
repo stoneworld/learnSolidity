@@ -3,8 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "hardhat/console.sol";
 
 /**
@@ -14,22 +13,25 @@ W3_2作业
    * (或)使用 TheGraph 解析 ERC721 转账事件
  */
 
- contract DevNFT is ERC721URIStorage, ReentrancyGuard {
+ contract DevNFT is ERC721URIStorage,Ownable {
 
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds; //token总数
 
-    constructor() ERC721 ("DevNFT", "DevNFT") {
+    constructor() ERC721 ("DevNFT", "DevNFT") Ownable() {
         console.log("This is my DEV NFT contract. Woah!");
     }
 
-    function MyDevNFTMint() public nonReentrant{
+    function MyDevNFTMint() public {
         uint newTokenId = _tokenIds.current();
+        require(newTokenId < 8888, "Token ID invalid");
 
         _safeMint(msg.sender, newTokenId);
-        _setTokenURI(newTokenId, "Test");
+        _setTokenURI(newTokenId, "https://prod-metadata.s3.amazonaws.com/tokens/721.json");
 
         _tokenIds.increment();
+        console.log("An NFT w/ ID %s has been minted to %s", newTokenId, msg.sender);
+
     }
 
  }
