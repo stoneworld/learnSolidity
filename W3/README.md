@@ -70,7 +70,7 @@ function claimToken(address _to, uint256 _amount) public hasPermission(_msgSende
 
 
 而后完成了 vault 合约代码如下：
-
+函数 delegatecall ：区别在于只调用给定地址的代码（函数），其他状态属性如（存储，余额 …）都来自当前合约。所以不能使用 delegatecall 进行调用 approve 函数。
 ```
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
