@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "hardhat/console.sol";
 
 
 contract Vault {
@@ -11,6 +12,7 @@ contract Vault {
     // 编写deposit ⽅法，实现 ERC20 存⼊ Vault，并记录每个⽤户存款⾦额
     function deposit(address _token, uint256 _amount) public {
         // 存款⾦额记录
+        //(bool success, bytes memory data) = _token.delegatecall(abi.encodeWithSignature("approve(address, uint256)", address(this), _amount)); 
         IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
         deposits[_token][msg.sender] += _amount;
     }

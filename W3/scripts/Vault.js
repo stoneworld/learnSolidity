@@ -22,6 +22,21 @@ async function main() {
 
     console.log("Token deployed to:", vault.address);
 
+    await vault.deposit('0x5FbDB2315678afecb367f032d93F642f64180aa3', ethers.utils.parseUnits("1"));
+
+    let [owner, second] = await ethers.getSigners();
+
+    let token = await ethers.getContractAt("Token",
+        '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+        owner);
+
+    let value = await token.allowance('0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266', vault.address);
+
+    console.log(value);
+
+
+
+
 }
 
 // We recommend this pattern to be able to use async/await everywhere
