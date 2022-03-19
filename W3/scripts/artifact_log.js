@@ -12,8 +12,6 @@ async function writeAddr(addr, name, network) {
     await writeLog(deployments, name, network);
 }
 
-
-
 // for Hardhat deployment
 async function writeAbiAddr(artifacts, addr, name, network) {
     const deployments = {};
@@ -29,20 +27,6 @@ async function writeAbiAddr(artifacts, addr, name, network) {
     await writeFile(deploymentPath, JSON.stringify(abis, null, 2));
 }
 
-// for Truffle deployment
-async function writeAbis(artifacts, name, network) {
-    const deployments = {};
-    deployments["address"] = artifacts.address;
-    deployments["contractName"] = artifacts.contractName;
-    await writeLog(deployments, name, network);
-
-    const abis = {};
-    abis["contractName"] = artifacts.contractName;
-    abis["abi"] = artifacts.abi;
-
-    const deploymentPath = path.resolve(__dirname, `../deployments/abi/${abis["contractName"]}.json`);
-    await writeFile(deploymentPath, JSON.stringify(abis, null, 2));
-}
 
 /**
  * 记录合约发布地址
@@ -58,7 +42,6 @@ async function writeLog(deployments, name, network) {
 
 module.exports = {
     writeLog,
-    writeAbis,
     writeAbiAddr,
     writeAddr
 }

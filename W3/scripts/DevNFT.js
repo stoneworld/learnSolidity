@@ -27,7 +27,7 @@ async function main() {
     await devNFT.MyDevNFTMint();
 
 
-    //await writeAddr(devNFT.address, "devNFT", network.name)
+    await writeAddr(devNFT.address, "devNFT", network.name)
 
 }
 
