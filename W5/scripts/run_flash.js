@@ -18,13 +18,11 @@ async function main() {
 
   const [owner, second] = await hre.ethers.getSigners();
   let aAmount = ethers.utils.parseUnits("100", 18);
-  let flashAddress = "0xeCc4Bba5DcA41518A2C84dF52D456f1eC47419D5";
+  let flashAddress = "0x5dC58F3D7de05748D83e6a4b8cAd0ac48C6EE9Fc";
 
   let flash = await ethers.getContractAt("FlashSwap", flashAddress, second);
 
   let tx = await flash.execArbitrage("0xdD333a05aF349D939Cd2Ca4295053C02C578e067", "0x57cc8842F4e1212d971D7e485D37d383Af569c51", 0, aAmount, {gasLimit: 10000000 });
-  //let tx = await flash.getPairAddress("0xdD333a05aF349D939Cd2Ca4295053C02C578e067", "0x57cc8842F4e1212d971D7e485D37d383Af569c51",{ gasLimit: 10000000 });
-  //let tx = await flash.swapExactInputSingle("0xdD333a05aF349D939Cd2Ca4295053C02C578e067", "0x57cc8842F4e1212d971D7e485D37d383Af569c51", aAmount, { gasLimit: 10000000 });
 
   console.log(tx);
 }

@@ -136,26 +136,24 @@ contract FlashSwap is IUniswapV2Callee {
             token1 = IUniswapV2Pair(msg.sender).token1(); // AToken
             assert(msg.sender == UniswapV2Library.pairFor(factory, token0, token1)); // ensure that msg.sender is actually a V2 pair
             assert(amount0 == 0 || amount1 == 0); // this strategy is unidirectional
-            path[0] = amount0 == 0 ? token1 : token0;
-            path[1] = amount0 == 0 ? token0 : token1;
+            path[0] = amount0 == 0 ? token0 : token1;
+            path[1] = amount0 == 0 ? token1 : token0;
         }
-
         // path 对应的是 [AToken, BToken]
-        // 先授权V3合约允许调用自身的 A token // 0x68b3465833fb72a70ecdf485e0e4c7bd8665fc45
-        uint256 amountReceived = swapExactInputSingle(token1, token0, amount1);
-        console.log("amountReceived:", amountReceived);
 
-        require(amountReceived > 0, 'need amountReceived > 0'); // fail if we didn't get enough B back to repay our flash loan
+        // 先授权V3合约允许调用自身的 A token
+        uint256 amountReceived = swapExactInputSingle(token1, token0, amount1);
 
         uint256 amountRequired = UniswapV2Library.getAmountsIn(factory, amount1, path)[0]; // 这里是需要还给池子中 B 的数量
-        console.log("amountRequired:", amountRequired);
+
+        require(IERC20(token0).balanceOf(address(this)) > amountRequired, 'amount is yes'); // return tokens to V2 pair
 
         require(amountRequired > 0, 'need > 0'); // fail if we didn't get enough B back to repay our flash loan
 
         require(amountReceived > amountRequired, 'not enough'); // fail if we didn't get enough B back to repay our flash loan
 
-        TransferHelper.safeTransfer(address(token0), msg.sender, amountRequired); // return tokens to V2 pair
-        TransferHelper.safeTransfer(address(token0), tx.origin, amountReceived - amountRequired); // keep the rest! (tokens) // 剩下的是套利所得的 B 数量，转给用户
+        assert(IERC20(token0).transfer(msg.sender, amountRequired)); // return tokens to V2 pair
+        assert(IERC20(token0).transfer(tx.origin, amountReceived - amountRequired)); // keep the rest! (tokens)
     }
 
     function swapExactInputSingle(address token0, address token1, uint256 amountIn) public returns (uint256 amountOut) {
@@ -168,7 +166,7 @@ contract FlashSwap is IUniswapV2Callee {
                 tokenIn: token0,
                 tokenOut: token1,
                 fee: 10000,
-                recipient: msg.sender,
+                recipient: address(this), // 兑换的转给合约
                 deadline: block.timestamp,
                 amountIn: amountIn,
                 amountOutMinimum: 0,

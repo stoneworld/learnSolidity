@@ -28,9 +28,68 @@ AToken 总提供量是 200000：
 
 添加流动性的地址：https://rinkeby.etherscan.io/tx/0xb1ea3d111533d7f03505f1e022d8a38e20c2f69b352ac773a6c724bca5098628
 
-流动性添加完毕后发现存在套利空间：
+流动性添加完毕后发现存在套利空间。
+执行的 hash：https://rinkeby.etherscan.io/tx/0x59b9d52ce5e94d42597acb2d31110276fbd7286dd3fcca90204b39dd5ade5761
 
-合约代码见 FlashSwap.sol
+<img src=./assets/WechatIMG278.png width=50% />
+
+
+合约详细代码见 FlashSwap.sol，下面列出来重要的两个方法，执行的 js 脚本在 run_flash.js 中。
+```
+// 这里借 A 还 B amount0 != 0 amount1 是 A 的数量
+function uniswapV2Call(address sender, uint amount0, uint amount1, bytes calldata data) external override{ 
+   // 这里 amount0 对应的 BToken, amount1 对应的是 AToken
+   address token0;
+   address token1;
+   address[] memory path = new address[](2);
+   {
+      token0 = IUniswapV2Pair(msg.sender).token0(); // BToken
+      token1 = IUniswapV2Pair(msg.sender).token1(); // AToken
+      assert(msg.sender == UniswapV2Library.pairFor(factory, token0, token1)); // ensure that msg.sender is actually a V2 pair
+      assert(amount0 == 0 || amount1 == 0); // this strategy is unidirectional
+      path[0] = amount0 == 0 ? token0 : token1;
+      path[1] = amount0 == 0 ? token1 : token0;
+   }
+   // path 对应的是 [AToken, BToken]
+
+   // 先授权V3合约允许调用自身的 A token
+   uint256 amountReceived = swapExactInputSingle(token1, token0, amount1);
+
+   uint256 amountRequired = UniswapV2Library.getAmountsIn(factory, amount1, path)[0]; // 这里是需要还给池子中 B 的数量，其实简单理解是获取到指定数量的 A 需要多少 B.
+
+   require(IERC20(token0).balanceOf(address(this)) > amountRequired, 'amount is yes'); // return tokens to V2 pair
+
+   require(amountRequired > 0, 'need > 0'); // fail if we didn't get enough B back to repay our flash loan
+
+   require(amountReceived > amountRequired, 'not enough'); // fail if we didn't get enough B back to repay our flash loan
+
+   assert(IERC20(token0).transfer(msg.sender, amountRequired)); // 合约再转给 pair 池子
+   assert(IERC20(token0).transfer(tx.origin, amountReceived - amountRequired)); // 剩下的装给自己
+}
+
+function swapExactInputSingle(address token0, address token1, uint256 amountIn) public returns (uint256 amountOut) { //调用 univ3 的兑换方法。
+   TransferHelper.safeApprove(token0, address(V3Router), amountIn);
+
+   // Naively set amountOutMinimum to 0. In production, use an oracle or other data source to choose a safer value for amountOutMinimum.
+   // We also set the sqrtPriceLimitx96 to be 0 to ensure we swap our exact input amount.
+   ISwapRouter.ExactInputSingleParams memory params =
+      ISwapRouter.ExactInputSingleParams({
+            tokenIn: token0,
+            tokenOut: token1,
+            fee: 10000,
+            recipient: address(this), // 兑换的转给合约
+            deadline: block.timestamp,
+            amountIn: amountIn,
+            amountOutMinimum: 0,
+            sqrtPriceLimitX96: 0
+      });
+
+   // The call to `exactInputSingle` executes the swap.
+   amountOut = ISwapRouter(V3Router).exactInputSingle(params);
+}
+
+
+```
 
 ### <span id="jump2">第二节课作业</span>
 
@@ -39,5 +98,3 @@ W5_2作业
    * 在 AAVE 中借款 token A
    * 使用 token A 在 Uniswap V2 中交易兑换 token B，然后在 Uniswap V3 token B 兑换为 token A
    * token A 还款给 AAVE
-
-TODO
