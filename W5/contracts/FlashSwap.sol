@@ -10,7 +10,6 @@ pragma solidity ^0.8.0;
 
 import './IERC20.sol';
 import './UniswapV2Library.sol';
-import "hardhat/console.sol";
 
 interface IUniswapV2Callee {
     function uniswapV2Call(address sender, uint amount0, uint amount1, bytes calldata data) external;
