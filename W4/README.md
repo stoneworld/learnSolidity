@@ -70,6 +70,9 @@ W4_2作业
    * 完成代币兑换后，直接质押 MasterChef
    * withdraw():从 MasterChef 提取 Token 方法
 
+部署 MasterChef 合约后需要将 sushiToken.transferOwnership(masterChef.address); 因为在 MasterChef 内部调用有 onlyOwner 的限制。
+部署 MasterChef 的 js 代码在 scripts 目录下。
+
 ```
 function buyToken(uint minTokenAmount) public payable {
     address[] memory path = new address[](2);
