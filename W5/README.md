@@ -104,7 +104,7 @@ W5_2作业
 
 aave 闪电贷：
 1. 不需要抵押
-2. executeOperation 方法操作完成前需要保证钱足够然后将要还的部分授权给 POOL，剩下的部分留给自己。
+2. executeOperation 方法操作完成前需要保证钱足够然后将要还的部分授权给 POOL，剩下的部分留给自己，合约本身不需要处理还款逻辑，授权后 POOL 合约会完成后续流程。
 
 新建：AAVEFlash.sol:尚未完成
 为了方便这里 token A 用 dai，因为 aave 测试网还行不能借自定义的token，所以需要在 univ2 和 v3需要加 dai 和 B token 的池子。创建池子的流程不再重复，这里直接写 sol 代码，后续进行测试。
