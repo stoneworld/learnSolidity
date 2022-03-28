@@ -106,5 +106,98 @@ aave 闪电贷：
 1. 不需要抵押
 2. executeOperation 方法操作完成前需要保证钱足够然后将要还的部分授权给 POOL，剩下的部分留给自己，合约本身不需要处理还款逻辑，授权后 POOL 合约会完成后续流程。
 
-新建：AAVEFlash.sol:尚未完成
-为了方便这里 token A 用 dai，因为 aave 测试网还行不能借自定义的token，所以需要在 univ2 和 v3需要加 dai 和 B token 的池子。创建池子的流程不再重复，这里直接写 sol 代码，后续进行测试。
+SimpleFlashLoanReceiver.sol:
+
+为了方便这里 token A 用 dai，因为 aave 测试网还行不能借自定义的token，所以需要在 univ2 和 v3需要加 dai 和 B token 的池子。
+
+<img src=./assets/WechatIMG561.png width=50% />
+
+<img src=./assets/WechatIMG562.png width=50% />
+
+从图中可以看到存在套利空间。
+
+```
+// sol 主要代码
+
+function execSimpleLoan(address _token, uint256 _amount, bytes calldata params) public {
+   POOL.flashLoanSimple(address(this), _token, _amount, params, 0);
+}
+
+function executeOperation(
+   address asset,
+   uint256 amount,
+   uint256 premium,
+   address initiator, // initiator: msg.sender 调用闪电贷的用户
+   bytes memory params // params
+) public override returns (bool) {
+   require(msg.sender == address(POOL), "Only allow aave POOL to call"); // 这里的 msg.sender 指的是 aave POOL
+   (address Btoken, address userAddress) = abi.decode(params, (address, address));
+
+   // asset -> Btoken in uniswap v2
+   
+   // 首先授权借的 dai 给 V2 router
+
+   IERC20(asset).approve(SWAP_V2_ROUTER, amount);
+
+   // 在 V2 router 中交易兑换 Btoken
+   address[] memory path1 = new address[](2); // 1:1
+   path1[0] = asset;
+   path1[1] = Btoken;
+
+   uint[] memory amounts1 = IV2SwapRouter(SWAP_V2_ROUTER).swapExactTokensForTokens(amount,uint256(0),path1,address(this),block.timestamp+20);
+   // amounts1[1] 即为兑换的 Btoken 数量
+
+   // Btoken -> asset in uniswap v3 // 1:3
+
+   // 首先授权兑换后的的 Btoken 给 V3 router
+
+   IERC20(Btoken).approve(SWAP_V3_ROUTER, amounts1[1]);
+   uint256 amountOut = swapExactInputSingle(Btoken, asset, amounts1[1], amount); // 最少 amount 个
+
+   //check the contract has the specified balance
+   require(amount <= IERC20(asset).balanceOf(address(this)), 'Invalid balance for the contract');
+
+   uint256 amountToReturn = amount.add(premium);
+
+   IERC20(asset).approve(address(POOL), amountToReturn); // 授权 POOL 承担还款费用
+   IERC20(asset).transfer(userAddress, amountOut.sub(amountToReturn)); // 剩下的转给 userAddress
+
+   return true;
+}
+
+function swapExactInputSingle(address token0, address token1, uint256 amountIn, uint256 amountOutMinimum) public returns (uint256 amountOut) {
+   // Naively set amountOutMinimum to 0. In production, use an oracle or other data source to choose a safer value for amountOutMinimum.
+   // We also set the sqrtPriceLimitx96 to be 0 to ensure we swap our exact input amount.
+   ISwapRouter.ExactInputSingleParams memory params =
+      ISwapRouter.ExactInputSingleParams({
+            tokenIn: token0,
+            tokenOut: token1,
+            fee: 3000,
+            recipient: address(this), // 兑换的转给合约
+            deadline: block.timestamp + 20,
+            amountIn: amountIn,
+            amountOutMinimum: amountOutMinimum,
+            sqrtPriceLimitX96: 0
+      });
+
+   // The call to `exactInputSingle` executes the swap.
+   amountOut = ISwapRouter(SWAP_V3_ROUTER).exactInputSingle(params);
+}
+
+async function main() {
+    const [owner, second] = await hre.ethers.getSigners();
+    let flashAddress = "0xc38b9bbC1AE01a341718DAC5eb9a62B7006996A8"; // 合约地址
+    let aAmount = ethers.utils.parseUnits("100", 18);
+    let simpleFlashLoanReceiver = await ethers.getContractAt("SimpleFlashLoanReceiver", flashAddress, second);
+    data = ethers.utils.defaultAbiCoder.encode(["address"], ["0xF85599564b418586C4039A6fdbCD9b4C1F9E198b"]);
+
+    let tx = await simpleFlashLoanReceiver.execSimpleLoan("0x2ec4c6fcdbf5f9beeceb1b51848fc2db1f3a26af", aAmount, data, { gasLimit: 10000000 });
+
+    console.log(tx);
+}
+
+```
+
+最后执行的结果：https://rinkeby.etherscan.io/tx/0xa52fd046d35b014390fd945fc9cb1af66f311170e609bcc42ca756d1f0fd13bc
+
+<img src=./assets/WechatIMG563.png width=50% />

@@ -20,7 +20,7 @@ async function main() {
         aAmount);
 
     await btoken.deployed();
-    console.log("AToken:" + btoken.address);
+    console.log("BToken:" + btoken.address);
 
 }
 
