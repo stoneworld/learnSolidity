@@ -6,6 +6,8 @@ Solidity学习记录
 * [W3：学习作业记录](./W3/README.md)
 * [W4：学习作业记录](./W4/README.md)
 * [W5：学习作业记录](./W5/README.md)
+* [W6：学习作业记录](./W6/README.md)
+
 
 
 
